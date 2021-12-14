@@ -1,28 +1,40 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
-    <a class="navbar-brand" href="/urls">TinyApp</a>
+    <a class="navbar-brand" href="/urls">Light App</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-item nav-link" href="/urls">My URLs</a>
-        <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        <% if (typeof(session_id) !== "undefined" && session_id) { %> 
+          <a class="nav-item nav-link" href="/urls">My URLs</a>
+          <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        <% } else { %> 
+          <a class="nav-item nav-link" href="/login">Login</a>
+          <a class="nav-item nav-link" href="/register">Register</a>
+          
+         <% } %> 
       </div>
-
     </div>
-    <div class="navbar-nav">
-      <% if (username) {%>
-        logged in to: <%= username %>
-        <form method="POST" action="/urls/logout">
-          <button type="submit" class="btn btn-outline-dark" >Logout</button>
-      </form>
-      <% } else {%>
-        <form method="POST" action="/urls/login">
-            <input name="username" type="text" id="url" placeholder="username"> 
-            <button type="submit" class="btn btn-outline-dark" >Login</button>
-        </form>
-      <% } %>
-    </div>
+     
+    <% if(!user){ %>
+      <form method="POST" action="/login">
+        <input type="text" name= "user_id" placeholder="Username">
+        <button type="submit" class="btn btn-outline-dark">Login</button>
+      </form> 
+      <!-- <a class="nav-item nav-link" href="/login">Login</a>
+      <a class="nav-item nav-link" href="/register">Register</a> -->
+    <% } else{ %> 
+      <a class="nav-item nav-link" href="/urls">My URLs</a>
+      <a class="nav-item nav-link" href="/urls/new">Create New URL</a> 
+      
+      
+      <form method="POST" action="/logout">
+        Logged In As <%=user.email%>!
+        <button type="submit" class="btn btn-outline-dark">Logout</button>
+      </form> 
+   <% } %>
+    
   </nav>
+
 </header>
