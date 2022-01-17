@@ -93,10 +93,6 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
-
 app.get('/register', (req, res) => {
   const userId = req.session.user_id
 
@@ -144,7 +140,7 @@ app.get("/set", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const templateVars = {user: req.session.user_id}
-  res.render("urls_new");
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -158,4 +154,8 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
+});
+
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
 });
