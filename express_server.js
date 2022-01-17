@@ -83,10 +83,24 @@ app.post('/logout', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  res.redirect('/urls');
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   const id = generateRandomID();
+
+  // check if all fields have been filled out
+  const {email, password, name} = req.body;
+  if(!email || !password || !name) {
+    return res.send(400, "you need to pass an email, password and name!")
+  };
+
+  // check if email is already in use
+  const emailExist = getUserByEmail(email, usersDb);
+  if(emailExist) {
+    return res.send(400, "Sorry this email already exist")
+  }
+
+
   usersDb[id] = {id: id, name: req.body.name, email: req.body.email, password: hashedPassword}
+  res.redirect('/urls');
 });
 
 app.get("/", (req, res) => {
