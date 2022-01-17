@@ -66,6 +66,13 @@ const getUserByEmail = (email, db) => {
   return undefined;
 };
 
+const getUserById = (id, users) => {
+  const user = users[id];
+  if (user) {
+    return user;
+  }
+  return null;
+};
 
 
-module.exports = { generateRandomString,findEmail, findPassword, findUserID, urlsForUser, getUserByEmail, generateRandomID };
+module.exports = { generateRandomString,findEmail, findPassword, findUserID, urlsForUser, getUserByEmail, generateRandomID, getUserById };
