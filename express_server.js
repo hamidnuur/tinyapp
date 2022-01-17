@@ -1,3 +1,4 @@
+// dependencies
 const express = require("express");
 const cookieParser = require('cookie-parser')
 const bodyParser = require("body-parser");
@@ -42,6 +43,7 @@ const usersDb = {
   },
 };
 
+//handles user input form submission
 app.post("/urls", (req, res) => {
   let short = generateRandomString();
   const userID = req.session.user_id;
@@ -53,12 +55,13 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${short}`);
 });
 
-
+// deletes a link off your url page
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
 
+//redirect to user's existing list of urls
 app.post("/login", (req, res) => {
   const {email, password} = req.body;
   if (!email || !password) {
@@ -88,7 +91,7 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect("/urls");
 });
 
-
+//handles user logout
 app.post('/logout', (req, res) => {
   req.session = null
   res.redirect('/urls');
@@ -104,6 +107,7 @@ app.get("/", (req, res) => {
   }
 });
 
+// allows new user to register
 app.get('/register', (req, res) => {
   const userId = req.session.user_id
 
@@ -117,7 +121,7 @@ app.get('/register', (req, res) => {
 
 })
 
-
+//validates registration, sends user to list of urls
 app.post('/register', (req, res) => {
   const {email, password, name} = req.body;
   const id = generateRandomID();
@@ -134,6 +138,7 @@ app.post('/register', (req, res) => {
   res.redirect('/urls');
 });
 
+//login page for registered user
 app.get('/login', (req, res) => {
   const templateVars = {user: null};
 
@@ -157,7 +162,7 @@ app.get("/set", (req, res) => {
  app.get("/fetch", (req, res) => {
   res.send(`a = ${a}`);
  });
-
+ //list of logged in user's urls
  app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
   const urlsForUserDB = urlsForUser(userID, urlDatabase);
