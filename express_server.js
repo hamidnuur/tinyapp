@@ -194,17 +194,38 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const userId = req.session.user_id
-
-  const user = usersDb[userId]
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: user };
-  res.render("urls_show", templateVars);
+  // let templateVars = {}
+  if (userId == null) {
+    return res.send("You are not the owner of this url!")
+  }
+  const urlsForUserDB = urlsForUser(userId, urlDatabase);
+  const shortURL = req.params.shortURL;
+  for (let url in urlsForUserDB) {
+    if (url == shortURL) {
+      const user = usersDb[userId]
+      const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: user };
+      res.render("urls_show", templateVars);
+    }
+  }
+  return res.send("You are not the owner of this url!")
 });
 
 
 
 // redirects to long url page
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const userId = req.session.user_id
+
+  if (userId == null) {
+    return res.send("You are not the owner of this url!")
+  }
+
+  const shortURL = req.params.shortURL;
+  const urlsForUserDB = urlsForUser(userId, urlDatabase);
+
+  const longURL = urlsForUserDB[shortURL].longURL;
+  // console.log(longURL);
+  console.log(urlsForUserDB);
   res.redirect(longURL);
 });
 
