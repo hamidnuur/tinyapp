@@ -45,18 +45,101 @@ const usersDb = {
 
 //handles user input form submission
 app.post("/urls", (req, res) => {
-  let short = generateRandomString();
-  const userID = req.session.user_id;
+  // validate if cookie exists
+  const {user_id} = req.session;
+  if (!user_id) {
+    return res.status(400).send("You need to be logged in!");
+  }
+  
+  // validate if the cookie is from an existing user
+  const validUser = usersDb[user_id];
+  if (!validUser) {
+    return res.status(400).send("You are not a valid user!");
+  }
 
-  urlDatabase[short] = {
-      longURL: req.body.longURL,
-      userID: userID,
+  // validate if the user passed a longURL to create a shortURL
+  const {longURL} = req.body;
+  if (!longURL) {
+    return res.status(400).send("You need to pass a longURL!");
+  }
+
+  // after validating, we create the shortURL and the url database object
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = {
+      longURL: longURL,
+      userID: user_id,
     };
-  res.redirect(`/urls/${short}`);
+  res.redirect(`/urls/${shortURL}`);
+});
+
+app.post("/urls/:shortURL", (req, res) => {
+  // validate if cookie exists
+  const {user_id} = req.session;
+  if (!user_id) {
+    return res.status(400).send("You need to be logged in!");
+  }
+  
+  // validate if the cookie is from an existing user
+  const validUser = usersDb[user_id];
+  if (!validUser) {
+    return res.status(400).send("You are not a valid user!");
+  }
+
+  // validate url object exists
+  const {shortURL} = req.params;
+  const urlObject = urlDatabase[shortURL];
+  if (!urlObject) {
+    return res.status(400).send("This URL object does not exist!");
+  }
+
+  // validate if url object belongs to logged in user
+  const urlBelongsToUser = urlObject.userID === validUser.id;
+  if (!urlBelongsToUser) {
+    return res.status(400).send("You are not the owner of this URL!")
+  }
+
+  // validate if the user passed a longURL to create a shortURL
+  const {longURL} = req.body;
+  if (!longURL) {
+    return res.status(400).send("You need to pass a longURL!");
+  }
+
+  // after validating, we create the shortURL and the url database object
+  urlDatabase[shortURL] = {
+      longURL: longURL,
+      userID: user_id,
+    };
+  res.redirect(`/urls/${shortURL}`);
+
 });
 
 // deletes a link off your url page
 app.post("/urls/:shortURL/delete", (req, res) => {
+  // validate if cookie exists
+  const {user_id} = req.session;
+  if (!user_id) {
+    return res.status(400).send("You need to be logged in!");
+  }
+  
+  // validate if the cookie is from an existing user
+  const validUser = usersDb[user_id];
+  if (!validUser) {
+    return res.status(400).send("You are not a valid user!");
+  }
+
+  // validate url object exists
+  const {shortURL} = req.params;
+  const urlObject = urlDatabase[shortURL];
+  if (!urlObject) {
+    return res.status(400).send("This URL object does not exist!");
+  }
+
+  // validate if url object belongs to logged in user
+  const urlBelongsToUser = urlObject.userID === validUser.id;
+  if (!urlBelongsToUser) {
+    return res.status(400).send("You are not the owner of this URL!")
+  }
+
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
@@ -82,21 +165,11 @@ app.post("/login", (req, res) => {
   res.redirect('/urls');
 });
 
-app.post("/urls/:shortURL", (req, res) => {
-  const userID = req.session.user_id;
-  
-  const shortURL = req.params.shortURL;
-  const newLongURL = req.body.longURL;
-  urlDatabase[shortURL] = newLongURL;
-  res.redirect("/urls");
-});
-
 //handles user logout
 app.post('/logout', (req, res) => {
   req.session = null
   res.redirect('/urls');
 });
-
 
 // get home page
 app.get("/", (req, res) => {
